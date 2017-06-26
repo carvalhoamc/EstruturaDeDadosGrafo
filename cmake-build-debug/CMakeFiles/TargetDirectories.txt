@@ -1,0 +1,3 @@
+/home/amc/Dropbox/src/uri1270/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/amc/Dropbox/src/uri1270/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/amc/Dropbox/src/uri1270/cmake-build-debug/CMakeFiles/uri1270.dir

@@ -204,7 +204,7 @@ class AdjListGraph{
 private:
     unsigned int N; //numero de vertices
     std::vector <std::map<unsigned int , V*>> adjList; //lista de adjacencias
-    std::map<unsigned int , V*> listaVmap; 
+    std::map<unsigned int , V*> listaVmap; //lista de vertices onde string e a chave unica
     list<E *> listaE; //lista de arestas
     list<E *> caminhoE; //lista de caminhos de arestas
 
@@ -212,14 +212,21 @@ private:
     bool isPonderado = true;   //true -> ponderado
     bool alteradaListaV = true; //true -> vertices alterados, atualizar listaE e adjlist
     bool alteradaListaE = true; //true -> arestas alteradas, atualizar adjlist
+    int tempo = 0;
 
 public:
 
     AdjListGraph(unsigned int N, bool isDirecionado, bool isPonderado) :
                                     N(N), isDirecionado(isDirecionado),
                                     isPonderado(isPonderado) {
+    }
 
+    int getTempo() const {
+        return tempo;
+    }
 
+    void setTempo(int tempo) {
+        AdjListGraph::tempo = tempo;
     }
 
     unsigned int getN() const {
@@ -345,13 +352,22 @@ public:
 
     void BFS(int s){
 
-        std::vector <std::map<unsigned int , V*>>::iterator itAdj = begin(adjList);
+        //std::vector <std::map<unsigned int , V*>>::iterator itAdj = begin(adjList);
         map<unsigned int , V*>::iterator mapAdjListIt;
         map<unsigned int , V*>::iterator itV = begin(listaVmap);
         std::queue<int> Q;
         V* uPtr = NULL;
         V* vPtr = NULL;
         V* sPtr = NULL;
+
+        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV){
+
+            itV->second->setCor(branco);
+            itV->second->setPaiPtr(NULL);
+            itV->second->setD(std::numeric_limits<int>::max());
+        }
+
+
 
         int u = 0;
         int ud = 0;
@@ -386,11 +402,72 @@ public:
         }
     }
 
-    void DFS(){
+    void printPathBFS(int s, int v){
+
+
+
 
 
 
     }
+
+
+
+
+
+    void DFS(){
+        map<unsigned int , V*>::iterator itV;
+
+        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV){
+
+            itV->second->setCor(branco);
+            itV->second->setPaiPtr(NULL);
+        }
+
+        AdjListGraph::tempo = 0;
+
+        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV){
+
+            if(itV->second->getCor() == branco){
+
+                DFSVisit(itV->second->getId());
+            }
+        }
+    }
+
+    void DFSVisit(int u){
+
+        map<unsigned int , V*>::iterator mapAdjListIt;
+        map<unsigned int , V*>::iterator itV = begin(listaVmap);
+        std::queue<int> Q;
+        V* uPtr = NULL;
+        V* vPtr = NULL;
+
+
+        ++AdjListGraph::tempo;
+        uPtr = findVerticeById(u);
+        uPtr->setD(AdjListGraph::tempo);
+        uPtr->setCor(cinza);
+
+        //for each v E Adj[u]
+        for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt){
+
+            vPtr = mapAdjListIt->second;
+
+            if(vPtr->getCor() == branco) { //if v.color == white
+
+                vPtr->setPaiPtr(uPtr);
+                DFSVisit(vPtr->getId());
+            }
+        }
+
+        uPtr->setCor(preto);
+        ++AdjListGraph::tempo;
+        uPtr->setF(AdjListGraph::tempo);
+    }
+
+
+
 
     void criaAdjList(){
 
@@ -407,6 +484,25 @@ public:
         }
     }
 
+    void limpaAdjList(){
+
+        adjList.clear();
+    }
+
+    void limpaArestas(){
+
+        listaE.clear();
+    }
+
+
+    void limpaVertices(){
+
+        listaVmap.clear();
+        limpaArestas();
+        limpaAdjList();
+    }
+
+
 };
 
 
@@ -416,7 +512,8 @@ public:
 
 int main() {
 
-    AdjListGraph *grafo = new AdjListGraph(6,true,false);
+    /*
+    AdjListGraph *grafo = new AdjListGraph(8,true,false);
     grafo->criaVertice(0, "r", 0);
     grafo->criaVertice(1, "s", 0);
     grafo->criaVertice(2, "t", 0);
@@ -425,7 +522,6 @@ int main() {
     grafo->criaVertice(5, "x", 0);
     grafo->criaVertice(6, "w", 0);
     grafo->criaVertice(7, "v", 0);
-
 
     grafo->criaArestaById(0, 1, 0);
     grafo->criaArestaById(0, 7, 0);
@@ -448,18 +544,42 @@ int main() {
     grafo->criaArestaById(6, 1, 0);
     grafo->criaArestaById(7, 0, 0);
 
-
-
-
     grafo->printListaV();
     grafo->printListaE();
     grafo->criaAdjList();
 
     grafo->BFS(1);
+    cout << "BFS result:" << endl;
+    grafo->printListaV();
+
+    grafo->limpaVertices();
+*/
+
+    AdjListGraph *grafo = new AdjListGraph(6,true,false);
+    grafo->criaVertice(0, "u", 0);
+    grafo->criaVertice(1, "v", 0);
+    grafo->criaVertice(2, "w", 0);
+    grafo->criaVertice(3, "z", 0);
+    grafo->criaVertice(4, "y", 0);
+    grafo->criaVertice(5, "x", 0);
+
+    grafo->criaArestaById(0, 1, 1);
+    grafo->criaArestaById(0, 5, 5);
+    grafo->criaArestaById(1, 4, 14);
+    grafo->criaArestaById(2, 4, 24);
+    grafo->criaArestaById(2, 3, 23);
+    grafo->criaArestaById(3, 3, 33);
+    grafo->criaArestaById(4, 5, 45);
+    grafo->criaArestaById(5, 1, 51);
 
     grafo->printListaV();
     grafo->printListaE();
+    grafo->criaAdjList();
 
+    grafo->DFS();
+    cout << "DFS result:" << endl;
+    grafo->printListaV();
+    grafo->printListaE();
 
 
 

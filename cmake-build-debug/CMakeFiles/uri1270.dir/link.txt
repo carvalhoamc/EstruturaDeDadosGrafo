@@ -1,0 +1,1 @@
+/usr/bin/c++   -g   CMakeFiles/uri1270.dir/main.cpp.o  -o uri1270 
