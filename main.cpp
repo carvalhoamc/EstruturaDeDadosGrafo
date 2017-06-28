@@ -39,6 +39,7 @@ private:
     bool visitado;
     V *paiPtr;
 
+
     void preparaVertice(){
         this->id = 0;
         this->cor = branco;
@@ -152,6 +153,7 @@ class E {
 
 private:
 
+    string chave;
     unsigned int origem;
     unsigned int destino;
     float peso;
@@ -163,12 +165,23 @@ public:
         origem = 0;
         destino = 0;
         peso = 0;
+        E::setChave(std::to_string(origem) + std::to_string(destino));
     };
 
     E(unsigned int origem, unsigned int destino, float peso) {
         E::setOrigem(origem);
         E::setDestino(destino);
         E::setPeso(peso);
+        E::setChave(std::to_string(origem) + std::to_string(destino));
+    }
+
+
+    const string &getChave() const {
+        return chave;
+    }
+
+    void setChave(const string &chave) {
+        E::chave = chave;
     }
 
     unsigned int getOrigem() const {
@@ -204,9 +217,8 @@ class AdjListGraph{
 private:
     unsigned int N; //numero de vertices
     std::vector <std::map<unsigned int , V*>> adjList; //lista de adjacencias
-    std::map<unsigned int , V*> listaVmap; //lista de vertices onde string e a chave unica
-    list<E *> listaE; //lista de arestas
-    list<E *> caminhoE; //lista de caminhos de arestas
+    std::map<unsigned int , V*> listaVmap; //lista de vertices onde um inteiro e a chave unica
+    std::map<std::string, E*> listaEmap;   //lista de arestas onde a combinacao de origem-destino formam a chave string
 
     bool isDirecionado = true; //true -> direcionado
     bool isPonderado = true;   //true -> ponderado
@@ -220,6 +232,9 @@ public:
                                     N(N), isDirecionado(isDirecionado),
                                     isPonderado(isPonderado) {
     }
+
+    //Min priority queue
+    template<class T> using min_heap = priority_queue<T, std::vector<T>, std::greater<T>>;
 
     int getTempo() const {
         return tempo;
@@ -237,13 +252,6 @@ public:
         return listaVmap;
     }
 
-    const list<E *> &getListaE() const {
-        return listaE;
-    }
-
-    const list<E *> &getCaminhoE() const {
-        return caminhoE;
-    }
 
     bool isIsDirecionado() const {
         return isDirecionado;
@@ -259,6 +267,14 @@ public:
 
     bool isAlteradaListaE() const {
         return alteradaListaE;
+    }
+
+    const map<string, E *> &getListaEmap() const {
+        return listaEmap;
+    }
+
+    void setListaEmap(const map<string, E *> &listaEmap) {
+        AdjListGraph::listaEmap = listaEmap;
     }
 
 
@@ -279,9 +295,18 @@ public:
 
         if((origemPtr != NULL) && (destinoPtr != NULL)){
             E *arestaPtr = new E(origemPtr->getId(), destinoPtr->getId(), peso);
-            listaE.push_back(arestaPtr);
+            listaEmap.insert(make_pair(arestaPtr->getChave(),arestaPtr));
             alteradaListaE = true;
         }
+    }
+
+    E *findArestaById(string chave){
+
+        E *arestaPtr = NULL;
+
+        std::map<std::string, E*>::iterator it =  listaEmap.find(chave);
+        arestaPtr = (*it).second;
+        return arestaPtr;
     }
 
     V *findVerticeById(unsigned int id) {
@@ -297,19 +322,32 @@ public:
     void printListaV(){
 
         map<unsigned int , V*>::iterator indexListaV;
+        V* paiPtr = NULL;
 
         for( indexListaV = begin(listaVmap); indexListaV != end(listaVmap); ++indexListaV){
 
-            cout << "Chave do Vertice= " << (*indexListaV).first << endl;
-            cout << "Dados dos Vertice" << "  ";
-            cout << "nome:"<<(*indexListaV).second->getNome() << "  ";
+            cout << "Chave do Vertice:" << (*indexListaV).first << "  ";
+            cout << "Nome do Vertice:"<<(*indexListaV).second->getNome() << "  ";
             cout << "id:"<<(*indexListaV).second->getId() << "  ";
+
+            paiPtr = (*indexListaV).second->getPaiPtr();
+            if(paiPtr == NULL){
+                cout << "id Pai:" << (*indexListaV).second->getNome() << "   ";
+            }else{
+                cout << "id Pai:" << paiPtr->getNome()<< "   ";
+            }
+
             cout << "chave:"<<(*indexListaV).second->getChave() << "  ";
             cout << "cor:"<<(*indexListaV).second->getCor() << "  ";
             cout << "d:"<<(*indexListaV).second->getD() << "  ";
             cout << "f:"<<(*indexListaV).second->getF() << "  ";
             cout << "Pai:"<<(*indexListaV).second->getPaiPtr() << "  ";
+
+
+
             cout << "Visitado:"<<(*indexListaV).second->isVisitado() << "  " << endl;
+
+
 
         }
 
@@ -320,17 +358,16 @@ public:
 
     void printListaE(){
 
-        list<E *>::iterator indexListaE = begin(listaE);
+        std::map<std::string, E*>::iterator indexListaE;
         unsigned int vOrigem;
         unsigned int vDestino;
 
+        for( indexListaE = begin(listaEmap); indexListaE != end(listaEmap); ++indexListaE){
 
-        while (indexListaE != end(listaE)) {
+            vOrigem = (*indexListaE).second->getOrigem();
+            vDestino = (*indexListaE).second->getDestino();
+            cout << "(" << findVerticeById(vOrigem)->getId() << "," << findVerticeById(vDestino)->getId() << ")" << (*indexListaE).second->getPeso() << endl;
 
-            vOrigem = (*indexListaE)->getOrigem();
-            vDestino = (*indexListaE)->getDestino();
-            cout << "(" << findVerticeById(vOrigem)->getId() << "," << findVerticeById(vDestino)->getId() << ")" << (*indexListaE)->getPeso() << endl;
-            ++indexListaE;
         }
     }
 
@@ -466,6 +503,82 @@ public:
         uPtr->setF(AdjListGraph::tempo);
     }
 
+    //Cormen 613
+    void topologicalSort(){
+
+        DFS();
+
+
+
+    }
+
+    //Cormen 634
+    void MSTPrim(int r){
+
+
+        min_heap<int> Qpriority;
+
+        map<unsigned int , V*>::iterator mapAdjListIt;
+        map<unsigned int , V*>::iterator itV = begin(listaVmap);
+        std::map<std::string, E*>::iterator itE =  begin(listaEmap);
+
+        V* uPtr = NULL;
+        V* rPtr = NULL;
+        V* vPtr = NULL;
+
+        E* arestaPtr = NULL;
+
+        int u = 0;
+        int v = 0;
+
+        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV){
+
+            itV->second->setPaiPtr(NULL);
+            itV->second->setChave(std::numeric_limits<int>::max());
+            itV->second->setCor(branco);
+        }
+
+        rPtr= findVerticeById(r);
+        rPtr->setChave(0);
+
+        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
+            Qpriority.emplace(itV->first);
+        }
+
+        while(!Qpriority.empty()){
+
+            u = Qpriority.top(); //acessa
+            Qpriority.pop();     //retira
+            uPtr = findVerticeById(u);
+
+            //for each v E Adj[u]
+            for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt) {
+
+                vPtr = mapAdjListIt->second;
+                arestaPtr = findArestaById(std::to_string(u) + std::to_string(vPtr->getId()));
+                if((vPtr->getCor() == branco)&&(arestaPtr->getPeso() < vPtr->getChave())){
+
+                    vPtr->setChave(arestaPtr->getPeso());
+                    vPtr->setPaiPtr(uPtr);
+
+
+
+                }
+            }
+
+            uPtr->setCor(preto);
+        }
+    }
+
+    //Cormen 658
+    void Dijkstra(){
+
+
+
+
+    }
+
+
 
 
 
@@ -475,10 +588,16 @@ public:
 
             adjList.resize(listaVmap.size());
             std::vector <std::map<unsigned int , V*>>::iterator itAdj = begin(adjList);
-            list<E*>::iterator itE = begin(listaE);
+            std::map<std::string, E*>::iterator indexListaE;
+            unsigned int vOrigem;
+            unsigned int vDestino;
 
-            for(auto &&i : listaE){
-                adjList[i->getOrigem()].insert(make_pair(i->getDestino(),findVerticeById(i->getDestino())));
+            for( indexListaE = begin(listaEmap); indexListaE != end(listaEmap); ++indexListaE){
+
+                vOrigem = (*indexListaE).second->getOrigem();
+                vDestino = (*indexListaE).second->getDestino();
+
+                adjList[vOrigem].insert(make_pair(vDestino,findVerticeById(vDestino)));
             }
 
         }
@@ -491,9 +610,8 @@ public:
 
     void limpaArestas(){
 
-        listaE.clear();
+        listaEmap.clear();
     }
-
 
     void limpaVertices(){
 
@@ -553,7 +671,6 @@ int main() {
     grafo->printListaV();
 
     grafo->limpaVertices();
-*/
 
     AdjListGraph *grafo = new AdjListGraph(6,true,false);
     grafo->criaVertice(0, "u", 0);
@@ -574,6 +691,7 @@ int main() {
 
     grafo->printListaV();
     grafo->printListaE();
+
     grafo->criaAdjList();
 
     grafo->DFS();
@@ -581,8 +699,69 @@ int main() {
     grafo->printListaV();
     grafo->printListaE();
 
+*/
 
+    AdjListGraph *grafo = new AdjListGraph(9,true,false);
+    grafo->criaVertice(0, "a", 0);
+    grafo->criaVertice(1, "b", 0);
+    grafo->criaVertice(2, "c", 0);
+    grafo->criaVertice(3, "d", 0);
+    grafo->criaVertice(4, "e", 0);
+    grafo->criaVertice(5, "f", 0);
+    grafo->criaVertice(6, "g", 0);
+    grafo->criaVertice(7, "h", 0);
+    grafo->criaVertice(8, "i", 0);
 
+    grafo->criaArestaById(0, 1, 4);
+    grafo->criaArestaById(1, 0, 4);
+
+    grafo->criaArestaById(1, 2, 8);
+    grafo->criaArestaById(2, 1, 8);
+
+    grafo->criaArestaById(2, 3, 7);
+    grafo->criaArestaById(3, 2, 7);
+
+    grafo->criaArestaById(3, 4, 9);
+    grafo->criaArestaById(4, 3, 9);
+
+    grafo->criaArestaById(4, 5, 10);
+    grafo->criaArestaById(5, 4, 10);
+
+    grafo->criaArestaById(3, 5, 14);
+    grafo->criaArestaById(5, 3, 14);
+
+    grafo->criaArestaById(5, 2, 4);
+    grafo->criaArestaById(2, 5, 4);
+
+    grafo->criaArestaById(2, 8, 2);
+    grafo->criaArestaById(8, 2, 2);
+
+    grafo->criaArestaById(5, 6, 2);
+    grafo->criaArestaById(6, 5, 2);
+
+    grafo->criaArestaById(8, 6, 6);
+    grafo->criaArestaById(6, 8, 6);
+
+    grafo->criaArestaById(8, 7, 7);
+    grafo->criaArestaById(7, 8, 7);
+
+    grafo->criaArestaById(6, 7, 0);
+    grafo->criaArestaById(7, 6, 0);
+
+    grafo->criaArestaById(1, 7, 11);
+    grafo->criaArestaById(7, 1, 11);
+
+    grafo->criaArestaById(0, 7, 8);
+    grafo->criaArestaById(7, 0, 8);
+
+    grafo->printListaV();
+    grafo->printListaE();
+    grafo->criaAdjList();
+    grafo->MSTPrim(0);
+
+    cout << endl << "MSTPrim result:" << endl;
+    grafo->printListaV();
+    grafo->printListaE();
 
 
     return 0;

@@ -8,38 +8,38 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/amc/Dropbox/src/uri1270/cmake-build-debug"/>
+				<Option working_dir="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/amc/Dropbox/src/uri1270/cmake-build-debug"/>
+				<Option working_dir="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/amc/Dropbox/src/uri1270/cmake-build-debug"/>
+				<Option working_dir="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="uri1270">
-				<Option output="/home/amc/Dropbox/src/uri1270/cmake-build-debug/uri1270" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/amc/Dropbox/src/uri1270/cmake-build-debug"/>
+				<Option output="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/uri1270" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -54,15 +54,15 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 uri1270"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 uri1270"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="uri1270/fast">
-				<Option output="/home/amc/Dropbox/src/uri1270/cmake-build-debug/uri1270" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/amc/Dropbox/src/uri1270/cmake-build-debug"/>
+				<Option output="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/uri1270" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -77,17 +77,17 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 uri1270/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/Dropbox/src/uri1270/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 uri1270/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/amc/Dropbox/src/uri1270/main.cpp">
+		<Unit filename="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/main.cpp">
 			<Option target="uri1270"/>
 		</Unit>
-		<Unit filename="/home/amc/Dropbox/src/uri1270/CMakeLists.txt">
+		<Unit filename="/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

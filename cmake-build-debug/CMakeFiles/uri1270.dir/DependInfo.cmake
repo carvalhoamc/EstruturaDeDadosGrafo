@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/amc/Dropbox/src/uri1270/main.cpp" "/home/amc/Dropbox/src/uri1270/cmake-build-debug/CMakeFiles/uri1270.dir/main.cpp.o"
+  "/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/main.cpp" "/home/amc/doutorado/src/uri1270/EstruturaDeDadosGrafo/cmake-build-debug/CMakeFiles/uri1270.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
