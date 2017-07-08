@@ -20,11 +20,12 @@
 #include <map>
 #include <cmath>
 #include <cstdlib>
+#include <algorithm>
 
 #define branco "BRANCO"
 #define cinza "CINZA"
 #define preto "PRETO"
-#define infitino 900000.0
+#define infinito 9999999.0
 
 
 using namespace std;
@@ -33,10 +34,9 @@ using namespace std;
 class V {
 
 private:
-    unsigned int id;
+
     string cor;
     string nome;
-    float d;
     int f;
     int chave;
     bool visitado;
@@ -48,7 +48,7 @@ private:
         this->id = 0;
         this->cor = branco;
         this->nome = "0";
-        this->d = std::numeric_limits<float>::max();
+        this->d = std::numeric_limits<float_t>::max();
         this->f = 0;
         this->chave = 0;
         this->visitado = false;
@@ -58,6 +58,9 @@ private:
     }
 
 public:
+
+    float_t d;
+    unsigned int id;
 
     V() {
         preparaVertice();
@@ -135,11 +138,11 @@ public:
         V::nome = nome;
     }
 
-    float getD() const {
+    float_t getD() const {
         return d;
     }
 
-    void setD(float d) {
+    void setD(float_t d) {
         V::d = d;
     }
 
@@ -183,7 +186,7 @@ private:
     string chave;
     unsigned int origem;
     unsigned int destino;
-    float peso;
+    float_t peso;
 
 public:
 
@@ -194,7 +197,7 @@ public:
         E::setChave(std::to_string(origem) + std::to_string(destino));
     };
 
-    E(unsigned int origem, unsigned int destino, float peso) {
+    E(unsigned int origem, unsigned int destino, float_t peso) {
         E::setOrigem(origem);
         E::setDestino(destino);
         E::setPeso(peso);
@@ -225,14 +228,30 @@ public:
         E::destino = destino;
     }
 
-    float getPeso() const {
+    float_t getPeso() const {
         return peso;
     }
 
-    void setPeso(float peso) {
+    void setPeso(float_t peso) {
         E::peso = peso;
     }
 };
+
+class vertice{
+public:
+    float_t* dist;
+    unsigned *id = 0;
+
+    explicit vertice(float_t* d, unsigned int* i) : dist(d), id(i){}
+};
+
+struct menorQueDist{
+    bool operator()(vertice const& v1,vertice const& v2 ) const {
+        return *(v1.dist) > *(v2.dist);
+    }
+};
+
+
 
 
 class AdjListGraph {
@@ -240,8 +259,9 @@ class AdjListGraph {
 private:
     unsigned int N; //numero de vertices
     std::vector<std::map<unsigned int, V *>> adjList; //lista de adjacencias
-    std::map<unsigned int, V *> listaVmap; //lista de vertices onde um inteiro e a chave unica
-    std::map<std::string, E *> listaEmap;   //lista de arestas onde a combinacao de origem-destino formam a chave string
+    std::map<unsigned int, V*> listaVmap; //lista de vertices onde um inteiro e a chave unica
+    std::map<std::string, E*> listaEmap;   //lista de arestas onde a combinacao de origem-destino formam a chave string
+
 
     bool isDirecionado = true; //true -> direcionado
     bool isPonderado = true;   //true -> ponderado
@@ -259,7 +279,7 @@ public:
     //Min priority queue
     template<class T> using min_heap = priority_queue<T, std::vector<T>, std::greater<T>>;
     min_heap<int> Qpriority;
-    min_heap<std::map<unsigned int, V *> > Qdminimo;
+
 
 
     unsigned int getListaVmapSize(){
@@ -327,7 +347,7 @@ public:
 
     }
 
-    void criaArestaById(int origem, int destino, float peso) {
+    void criaArestaById(int origem, int destino, float_t peso) {
 
         V *origemPtr = findVerticeById(origem);
         V *destinoPtr = findVerticeById(destino);
@@ -371,6 +391,28 @@ public:
         }
         return vPtr;
     }
+
+    V* findVerticeByDistance(float_t distance){
+
+        map<unsigned int, V *>::iterator indexListaV;
+        V *vPtr = NULL;
+
+        for (indexListaV = begin(listaVmap); indexListaV != end(listaVmap); ++indexListaV) {
+
+            if (round((*indexListaV).second->getD()) == round(distance)){
+                vPtr = (*indexListaV).second;
+                return vPtr;
+            }
+        }
+        return vPtr;
+
+
+
+
+
+    }
+
+
 
     void printListaV() {
 
@@ -438,7 +480,7 @@ public:
 
             itV->second->setCor(branco);
             itV->second->setPaiPtr(NULL);
-            itV->second->setD(infitino);
+            itV->second->setD(infinito);
         }
 
         sPtr = findVerticeById(s);
@@ -498,13 +540,13 @@ public:
         int u = 0;
         int v = 0;
         E *arestaPtr = NULL;
-        float W = 0;
+        float_t W = 0;
 
         for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
 
             itV->second->setCor(branco);
             itV->second->setPaiPtr(NULL);
-            itV->second->setD(infitino);
+            itV->second->setD(infinito);
         }
 
         sPtr = findVerticeById(s);
@@ -640,19 +682,19 @@ public:
 
     void ISS(unsigned int s){
 
-        map<unsigned int, V *>::iterator itV = begin(listaVmap);
-
-        V *sPtr = findVerticeById(s);
-        sPtr->setD(0);
+        map<unsigned int, V *>::iterator itV;
 
         for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
             itV->second->setCor(branco);
             itV->second->setPaiPtr(NULL);
-            itV->second->setD(infitino);
+            itV->second->setD(infinito);
         }
+
+        V *sPtr = findVerticeById(s);
+        sPtr->setD(0);
     }
 
-    void Relax(unsigned int u, unsigned int v, float peso){
+    void Relax(unsigned int u, unsigned int v, float_t peso){
 
         V *uPtr = findVerticeById(u);
         V *vPtr = findVerticeById(v);
@@ -668,41 +710,74 @@ public:
     //Cormen 658
     void Dijkstra(unsigned int s) {
 
+        //multimap<float_t*, unsigned int > QpriorityVertex; //distancia e id do vertice
         map<unsigned int, V *>::iterator mapAdjListIt;
         map<unsigned int, V *>::iterator itV;
-        V *sPtr = NULL;
-        V *uPtr = NULL;
-        V *vPtr = NULL;
-        E *arestaPtr = NULL;
+        vector<vertice> QpriorityVertex;
+        multimap<float_t*, unsigned int>::iterator itMinimo ; //chave, id do vertice
+
+        V *sPtr = nullptr;
+        V* uPtr = nullptr;
+        V *vPtr = nullptr;
+        E *arestaPtr = nullptr;
         unsigned int u = 0;
         unsigned int v = 0;
         vector<unsigned int> S;
+        float_t uVdistance = 0;
+        float_t* auxPtr = nullptr;
 
         ISS(s);
-        while (!Qdminimo.empty()){ //esvazia
-            Qdminimo.pop();
-        }
+
+
 
         for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
-            Qdminimo.emplace(itV->second->getD());
+            vertice* VV = new vertice(&itV->second->d, &itV->second->id);
+
+            QpriorityVertex.push_back(*VV);
+            delete VV;
         }
 
-        while (!Qdminimo.empty()) {
-           // u = Qdminimo.top(); //acessa
-            Qdminimo.pop();     //retira
+        while (!QpriorityVertex.empty()) {
+
+            make_heap(QpriorityVertex.begin(), QpriorityVertex.end(), menorQueDist());
+            uPtr = findVerticeById(*QpriorityVertex.front().id); //acessa
+            QpriorityVertex.erase(QpriorityVertex.begin());    //retira
+            u = uPtr->getId();
             S.push_back(u);
+
 
             //for each v E Adj[u]
             for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt) {
                 vPtr = mapAdjListIt->second;
+                v = vPtr->getId();
                 arestaPtr = findArestaById(std::to_string(u) + std::to_string(vPtr->getId()));
-                Relax(u, v, arestaPtr->getPeso());
+                float_t W = arestaPtr->getPeso();
+                Relax(u, v, W);
             }
+
+       //     QpriorityVertex.
+
+
+
+
         }
 
         for(int i = 0; i < S.size(); ++i){
             cout << S.at(i) << " ";
         }
+
+    }
+
+
+    void BranchAndBound(){
+
+
+
+
+
+
+
+
 
     }
 
@@ -766,7 +841,7 @@ int main() {
     int o; //origem
     int d; //destino
     V* vTemp = NULL;
-    float distancia = 0.0;
+    float_t distancia = 0.0;
     int x1, y1, x2, y2;
 
     int x = 0;
@@ -846,7 +921,7 @@ int main() {
 
         int t = grafo->getListaVmapSize();
 
-        float matrizDistancia[t][t];
+        float_t matrizDistancia[t][t];
 
         for( int i = 0; i < t; ++i){
             for(int j = 0; j < t; ++j){
@@ -875,43 +950,42 @@ int main() {
 int main() {
 
 
-    AdjListGraph *grafo = new AdjListGraph(8, true, false);
-    grafo->criaVertice(0, "r", 0);
-    grafo->criaVertice(1, "s", 0);
-    grafo->criaVertice(2, "t", 0);
-    grafo->criaVertice(3, "u", 0);
-    grafo->criaVertice(4, "y", 0);
-    grafo->criaVertice(5, "x", 0);
-    grafo->criaVertice(6, "w", 0);
-    grafo->criaVertice(7, "v", 0);
+    AdjListGraph *grafo = new AdjListGraph(9, true, false);
+    grafo->criaVertice(0, "0", 0);
+    grafo->criaVertice(1, "1", 0);
+    grafo->criaVertice(2, "2", 0);
+    grafo->criaVertice(3, "3", 0);
+    grafo->criaVertice(4, "4", 0);
+    grafo->criaVertice(5, "5", 0);
+    grafo->criaVertice(6, "6", 0);
+    grafo->criaVertice(7, "7", 0);
+    grafo->criaVertice(8, "8", 0);
 
-    grafo->criaArestaById(0, 1, 20);
-    grafo->criaArestaById(0, 7, 20);
-    grafo->criaArestaById(1, 0, 20);
-    grafo->criaArestaById(1, 6, 20);
-    grafo->criaArestaById(2, 3, 20);
-    grafo->criaArestaById(2, 5, 20);
-    grafo->criaArestaById(2, 6, 20);
-    grafo->criaArestaById(3, 2, 20);
-    grafo->criaArestaById(3, 4, 20);
-    grafo->criaArestaById(3, 5, 20);
-    grafo->criaArestaById(4, 3, 20);
-    grafo->criaArestaById(4, 5, 200);
-    grafo->criaArestaById(5, 4, 200);
-    grafo->criaArestaById(5, 3, 20);
-    grafo->criaArestaById(5, 2, 20);
-    grafo->criaArestaById(5, 6, 20);
-    grafo->criaArestaById(6, 5, 20);
-    grafo->criaArestaById(6, 2, 20);
-    grafo->criaArestaById(6, 1, 20);
-    grafo->criaArestaById(7, 0, 20);
+    grafo->criaArestaById(0, 1, 4);
+
+    grafo->criaArestaById(0, 7, 8);
+    grafo->criaArestaById(1, 2, 8);
+    grafo->criaArestaById(1, 7, 11);
+    grafo->criaArestaById(2, 3, 7);
+    grafo->criaArestaById(2, 8, 2);
+    grafo->criaArestaById(2, 5, 4);
+    grafo->criaArestaById(3, 4, 9);
+    grafo->criaArestaById(3, 5, 14);
+    grafo->criaArestaById(4, 5, 10);
+    grafo->criaArestaById(5, 6, 2);
+    grafo->criaArestaById(6, 7, 1);
+    grafo->criaArestaById(6, 8, 6);
+    grafo->criaArestaById(7, 8, 7);
+
+
+
 
     grafo->printListaV();
     grafo->printListaE();
     grafo->criaAdjList();
 
     grafo->Dijkstra(0);
-    //cout << "Dijkstra result:" << endl;
+    cout << "Dijkstra result:" << endl;
     //grafo->printListaV();
     //grafo->printPathBFS(0,4);
 }
