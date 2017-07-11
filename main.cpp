@@ -262,7 +262,6 @@ private:
     std::map<unsigned int, V*> listaVmap; //lista de vertices onde um inteiro e a chave unica
     std::map<std::string, E*> listaEmap;   //lista de arestas onde a combinacao de origem-destino formam a chave string
 
-
     bool isDirecionado = true; //true -> direcionado
     bool isPonderado = true;   //true -> ponderado
     bool alteradaListaV = true; //true -> vertices alterados, atualizar listaE e adjlist
@@ -280,7 +279,17 @@ public:
     template<class T> using min_heap = priority_queue<T, std::vector<T>, std::greater<T>>;
     min_heap<int> Qpriority;
 
+    struct distancias{
+        int cidade1;
+        int cidade2;
+        float_t distancia;
 
+        bool operator() (distancias i, distancias j) { return  (i.distancia < j.distancia);}
+    } D;
+
+    vector<vector<distancias>> Md; //linha 0 distancia entre cidade0 e cidade1
+    distancias dTemp;
+    vector<distancias> linhaDaMatriz;
 
     unsigned int getListaVmapSize(){
         return listaVmap.size();
@@ -405,14 +414,7 @@ public:
             }
         }
         return vPtr;
-
-
-
-
-
     }
-
-
 
     void printListaV() {
 
@@ -422,19 +424,19 @@ public:
         for (indexListaV = begin(listaVmap); indexListaV != end(listaVmap); ++indexListaV) {
 
             //cout << "Chave do Vertice:" << (*indexListaV).first << "  ";
-            cout << "Nome do Vertice:" << (*indexListaV).second->getNome() << "  ";
-            cout << "id:" << (*indexListaV).second->getId() << "  ";
+            cout << "Nome do Vertice:" << (*indexListaV).second->getNome() << "               ";
+            cout << "id:" << (*indexListaV).second->getId() << "          ";
             paiPtr = (*indexListaV).second->getPaiPtr();
             if (paiPtr == NULL) {
-                cout << "id Pai:" << (*indexListaV).second->getId() << "   ";
+                cout << "id Pai:" << (*indexListaV).second->getId() << "          ";
             } else {
-                cout << "id Pai:" << paiPtr->getId() << "   ";
+                cout << "id Pai:" << paiPtr->getId() << "          ";
             }
-            //cout << "chave:" << (*indexListaV).second->getChave() << "  ";
+            cout << "chave:" << (*indexListaV).second->getChave() << "  ";
             cout << "cor:" << (*indexListaV).second->getCor() << "  ";
-            cout << "d:" << (*indexListaV).second->getD() << "  ";
-            //cout << "f:" << (*indexListaV).second->getF() << "  ";
-            cout << "Pai:" << (*indexListaV).second->getPaiPtr() << "  ";
+            cout << "d:" << (*indexListaV).second->getD() << "          ";
+            cout << "f:" << (*indexListaV).second->getF() << "  ";
+            cout << "Pai:" << (*indexListaV).second->getPaiPtr() << "          ";
             cout << "Visitado:" << (*indexListaV).second->isVisitado() << "  " << endl;
         }
     }
@@ -466,123 +468,205 @@ public:
         return visitado;
     }
 
-    void BFS(int s) {
 
-        map<unsigned int, V *>::iterator mapAdjListIt;
+
+
+
+
+    void ISS(unsigned int s){
+
         map<unsigned int, V *>::iterator itV;
-        std::queue<int> Q;
-        V *uPtr = NULL;
-        V *vPtr = NULL;
-        V *sPtr = NULL;
-        int u = 0;
 
         for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
-
             itV->second->setCor(branco);
             itV->second->setPaiPtr(NULL);
             itV->second->setD(infinito);
+            itV->second->setVisitado(false);
         }
 
-        sPtr = findVerticeById(s);
-        sPtr->setCor(cinza);
+        V *sPtr = findVerticeById(s);
         sPtr->setD(0);
-        sPtr->setPaiPtr(NULL);
+        sPtr->setVisitado(true);
+    }
 
-        Q.empty();
-        Q.emplace(s);
+    void Relax(unsigned int u, unsigned int v, float_t peso){
 
-        while (!Q.empty()) {
-            u = Q.front();
-            Q.pop();
+        V *uPtr = findVerticeById(u);
+        V *vPtr = findVerticeById(v);
 
-            //for each v E Adj[u]
-            for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt) {
-                vPtr = mapAdjListIt->second;
-                uPtr = findVerticeById(u);
-                if (vPtr->getCor() == branco) { //if v.color == white
-                    vPtr->setCor(cinza);
-                    vPtr->setD(uPtr->getD() + 1);
-                    vPtr->setPaiPtr(uPtr);
-                    Q.emplace(vPtr->getId());
-                }
-            }
-            uPtr->setCor(preto);
+        if(vPtr->getD() > (uPtr->getD() + peso)){
+            vPtr->setD(uPtr->getD() + peso);
+            vPtr->setPaiPtr(uPtr);
+            vPtr->setVisitado(true);
         }
     }
 
-    void printPathBFS(int s, int v) {
-        V *vPtr = NULL;
-        V *sPtr = NULL;
+    string city(string cityname){
 
-        vPtr = findVerticeById(v);
-        sPtr = findVerticeById(s);
-
-        if(s == v){
-            cout << s << ", " ;
-        }else if(vPtr->getPaiPtr() == NULL){
-            cout << s << " to " << v << " Não existe " ;
-        }else{
-            printPathBFS(s,vPtr->getPaiPtr()->getId());
-            cout << v << ", ";
-        }
-
+        std::size_t pos = cityname.find(":");
+        cityname = cityname.substr(0,pos);
+        return cityname;
     }
 
 
-    void BFSDig(int s) {
+    void DijkstraModificadoURI1270(unsigned int s) {
 
         map<unsigned int, V *>::iterator mapAdjListIt;
         map<unsigned int, V *>::iterator itV;
-        std::queue<int> Q;
-        V *uPtr = NULL;
-        V *vPtr = NULL;
-        V *sPtr = NULL;
-        int u = 0;
-        int v = 0;
-        E *arestaPtr = NULL;
-        float_t W = 0;
+        vector<vertice> QpriorityVertex;
+        multimap<float_t*, unsigned int>::iterator itMinimo ; //chave, id do vertice
+
+        V *sPtr = nullptr;
+        V* uPtr = nullptr;
+        V *vPtr = nullptr;
+        E *arestaPtr = nullptr;
+        unsigned int u = 0;
+        unsigned int v = 0;
+        vector<unsigned int> S;
+
+        ISS(s);
 
         for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
+            vertice* VV = new vertice(&itV->second->d, &itV->second->id);
 
-            itV->second->setCor(branco);
-            itV->second->setPaiPtr(NULL);
-            itV->second->setD(infinito);
+            QpriorityVertex.push_back(*VV);
+            delete VV;
         }
 
-        sPtr = findVerticeById(s);
-        //cout << "defeito S: " << sPtr;
-        sPtr->setCor(cinza);
-        sPtr->setD(0.0); //distancia
-        sPtr->setPaiPtr(NULL);
+        while (!QpriorityVertex.empty()) {
 
-        Q.empty();
-        Q.emplace(s);
-
-        while (!Q.empty()) {
-            u = Q.front();
-            Q.pop();
+            make_heap(QpriorityVertex.begin(), QpriorityVertex.end(), menorQueDist());
+            uPtr = findVerticeById(*QpriorityVertex.front().id); //acessa
+            QpriorityVertex.erase(QpriorityVertex.begin());    //retira
+            u = uPtr->getId();
+            uPtr->setVisitado(true);
+            S.push_back(u); //não é o caminho!!
 
             //for each v E Adj[u]
             for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt) {
                 vPtr = mapAdjListIt->second;
-                uPtr = findVerticeById(u);
-                v = vPtr->getId();
-                if (vPtr->getCor() == branco) { //if v.color == white
-                    vPtr->setCor(cinza);
 
-                    arestaPtr = findArestaById(std::to_string(u) + std::to_string(v));
-                    W = arestaPtr->getPeso();
 
-                    vPtr->setD(uPtr->getD() + W);
-                    vPtr->setPaiPtr(uPtr);
-                    Q.emplace(vPtr->getId());
+/*                if(vPtr->isVisitado())continue;
+                if((uPtr->getPaiPtr()!= nullptr)&&(vPtr != nullptr)){
+                    if(city(uPtr->getPaiPtr()->getNome()) == city(vPtr->getNome())) continue;
                 }
+
+*/
+                v = vPtr->getId();
+                arestaPtr = findArestaById(std::to_string(u) + std::to_string(vPtr->getId()));
+                float_t W = arestaPtr->getPeso();
+
+                //cout << city(uPtr->getNome()) << ":" << city(vPtr->getNome()) << endl;
+                if(city(uPtr->getNome()) == city(vPtr->getNome())) continue;
+
+                Relax(u, v, W);
             }
-            uPtr->setCor(preto);
+
         }
+
+
+
     }
 
 
+
+
+    //Cormen 658
+    void Dijkstra(unsigned int s) {
+
+        map<unsigned int, V *>::iterator mapAdjListIt;
+        map<unsigned int, V *>::iterator itV;
+        vector<vertice> QpriorityVertex;
+        multimap<float_t*, unsigned int>::iterator itMinimo ; //chave, id do vertice
+
+        V *sPtr = nullptr;
+        V* uPtr = nullptr;
+        V *vPtr = nullptr;
+        E *arestaPtr = nullptr;
+        unsigned int u = 0;
+        unsigned int v = 0;
+        vector<unsigned int> S;
+
+        ISS(s);
+
+        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
+            vertice* VV = new vertice(&itV->second->d, &itV->second->id);
+
+            QpriorityVertex.push_back(*VV);
+            delete VV;
+        }
+
+        while (!QpriorityVertex.empty()) {
+
+            make_heap(QpriorityVertex.begin(), QpriorityVertex.end(), menorQueDist());
+            uPtr = findVerticeById(*QpriorityVertex.front().id); //acessa
+            QpriorityVertex.erase(QpriorityVertex.begin());    //retira
+            u = uPtr->getId();
+            S.push_back(u);
+
+
+            //for each v E Adj[u]
+            for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt) {
+                vPtr = mapAdjListIt->second;
+                v = vPtr->getId();
+                arestaPtr = findArestaById(std::to_string(u) + std::to_string(vPtr->getId()));
+                float_t W = arestaPtr->getPeso();
+                Relax(u, v, W);
+            }
+
+        }
+
+        for(int i = 0; i < S.size(); ++i){
+            cout << S.at(i) << " ";
+        }
+
+    }
+
+    void criaAdjList() {
+
+        if (isAlteradaListaE() || isAlteradaListaV()) {
+            adjList.resize(listaVmap.size());
+            std::vector<std::map<unsigned int, V *>>::iterator itAdj = begin(adjList);
+            std::map<std::string, E *>::iterator indexListaE;
+            unsigned int vOrigem;
+            unsigned int vDestino;
+
+            for (indexListaE = begin(listaEmap); indexListaE != end(listaEmap); ++indexListaE) {
+                vOrigem = (*indexListaE).second->getOrigem();
+                vDestino = (*indexListaE).second->getDestino();
+                adjList[vOrigem].insert(make_pair(vDestino, findVerticeById(vDestino)));
+            }
+        }
+    }
+
+    void methodAMC(){
+        vector<float_t> soma(Md.front().size());
+
+        vector<vector<distancias>>::iterator it = Md.begin();
+
+        while(it != Md.end()){
+        //TODO varrer os vetores para somar
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
 
     void DFS() {
         map<unsigned int, V *>::iterator itV;
@@ -630,175 +714,6 @@ public:
         uPtr->setF(AdjListGraph::tempo);
     }
 
-    //Cormen 613
-    void topologicalSort() {
-
-        DFS();
-
-    }
-
-    //Cormen 634
-    void MSTPrim(int r) {
-
-
-        map<unsigned int, V *>::iterator mapAdjListIt;
-        map<unsigned int, V *>::iterator itV = begin(listaVmap);
-        std::map<std::string, E *>::iterator itE = begin(listaEmap);
-
-        V *uPtr = NULL;
-        V *rPtr = NULL;
-        V *vPtr = NULL;
-        E *arestaPtr = NULL;
-        int u = 0;
-        int v = 0;
-
-        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
-            itV->second->setPaiPtr(NULL);
-            itV->second->setChave(std::numeric_limits<int>::max());
-            itV->second->setCor(branco);
-        }
-        rPtr = findVerticeById(r);
-        rPtr->setChave(0);
-        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
-            Qpriority.emplace(itV->first);
-        }
-        while (!Qpriority.empty()) {
-            u = Qpriority.top(); //acessa
-            Qpriority.pop();     //retira
-            uPtr = findVerticeById(u);
-
-            //for each v E Adj[u]
-            for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt) {
-                vPtr = mapAdjListIt->second;
-                arestaPtr = findArestaById(std::to_string(u) + std::to_string(vPtr->getId()));
-                if ((vPtr->getCor() == branco) && (arestaPtr->getPeso() < vPtr->getChave())) {
-                    vPtr->setChave(arestaPtr->getPeso());
-                    vPtr->setPaiPtr(uPtr);
-                }
-            }
-            uPtr->setCor(preto);
-        }
-    }
-
-    void ISS(unsigned int s){
-
-        map<unsigned int, V *>::iterator itV;
-
-        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
-            itV->second->setCor(branco);
-            itV->second->setPaiPtr(NULL);
-            itV->second->setD(infinito);
-        }
-
-        V *sPtr = findVerticeById(s);
-        sPtr->setD(0);
-    }
-
-    void Relax(unsigned int u, unsigned int v, float_t peso){
-
-        V *uPtr = findVerticeById(u);
-        V *vPtr = findVerticeById(v);
-
-        if(vPtr->getD() > (uPtr->getD() + peso)){
-            vPtr->setD(uPtr->getD() + peso);
-            vPtr->setPaiPtr(uPtr);
-        }
-    }
-
-
-
-    //Cormen 658
-    void Dijkstra(unsigned int s) {
-
-        //multimap<float_t*, unsigned int > QpriorityVertex; //distancia e id do vertice
-        map<unsigned int, V *>::iterator mapAdjListIt;
-        map<unsigned int, V *>::iterator itV;
-        vector<vertice> QpriorityVertex;
-        multimap<float_t*, unsigned int>::iterator itMinimo ; //chave, id do vertice
-
-        V *sPtr = nullptr;
-        V* uPtr = nullptr;
-        V *vPtr = nullptr;
-        E *arestaPtr = nullptr;
-        unsigned int u = 0;
-        unsigned int v = 0;
-        vector<unsigned int> S;
-        float_t uVdistance = 0;
-        float_t* auxPtr = nullptr;
-
-        ISS(s);
-
-
-
-        for (itV = begin(listaVmap); itV != end(listaVmap); ++itV) {
-            vertice* VV = new vertice(&itV->second->d, &itV->second->id);
-
-            QpriorityVertex.push_back(*VV);
-            delete VV;
-        }
-
-        while (!QpriorityVertex.empty()) {
-
-            make_heap(QpriorityVertex.begin(), QpriorityVertex.end(), menorQueDist());
-            uPtr = findVerticeById(*QpriorityVertex.front().id); //acessa
-            QpriorityVertex.erase(QpriorityVertex.begin());    //retira
-            u = uPtr->getId();
-            S.push_back(u);
-
-
-            //for each v E Adj[u]
-            for (mapAdjListIt = adjList[u].begin(); mapAdjListIt != adjList[u].end(); ++mapAdjListIt) {
-                vPtr = mapAdjListIt->second;
-                v = vPtr->getId();
-                arestaPtr = findArestaById(std::to_string(u) + std::to_string(vPtr->getId()));
-                float_t W = arestaPtr->getPeso();
-                Relax(u, v, W);
-            }
-
-       //     QpriorityVertex.
-
-
-
-
-        }
-
-        for(int i = 0; i < S.size(); ++i){
-            cout << S.at(i) << " ";
-        }
-
-    }
-
-
-    void BranchAndBound(){
-
-
-
-
-
-
-
-
-
-    }
-
-
-    void criaAdjList() {
-
-        if (isAlteradaListaE() || isAlteradaListaV()) {
-            adjList.resize(listaVmap.size());
-            std::vector<std::map<unsigned int, V *>>::iterator itAdj = begin(adjList);
-            std::map<std::string, E *>::iterator indexListaE;
-            unsigned int vOrigem;
-            unsigned int vDestino;
-
-            for (indexListaE = begin(listaEmap); indexListaE != end(listaEmap); ++indexListaE) {
-                vOrigem = (*indexListaE).second->getOrigem();
-                vDestino = (*indexListaE).second->getDestino();
-                adjList[vOrigem].insert(make_pair(vDestino, findVerticeById(vDestino)));
-            }
-        }
-    }
-
     void limpaAdjList() {
 
         adjList.clear();
@@ -815,9 +730,16 @@ public:
         limpaArestas();
         limpaAdjList();
     }
+
+
+
+
 };
 
-/*
+
+
+
+
 int main() {
 
     unsigned int ID = 0;
@@ -849,12 +771,15 @@ int main() {
     coordenadas temp;
     AdjListGraph *grafo;
 
+
+
     for (;;) {
 
         listaCidades.clear();
         cin >> N;
         if (N == 0) break;
         grafo = new AdjListGraph(N,true,false);
+
         for (int i = 0; i < N; i++) {
 
             cin >> nomeCidade >> Ci;
@@ -876,9 +801,9 @@ int main() {
         }
 
 
-
         for(int k = 0; k < (N-1); k++) {
 
+            grafo->linhaDaMatriz.clear();
             cin >> origem >> destino;
 
             itOrigem = listaCidades.find(origem);
@@ -894,193 +819,55 @@ int main() {
                     y2 = (*itDestino).second[indiceDestino].Y;
 
                     distancia = sqrtf(pow(x1 - x2, 2) + pow(y1 - y2, 2));
-                    cout << distancia << endl;
+                    //cout << distancia << endl;
 
                     vTemp = grafo->findVerticeByName(origem+":"+std::to_string(x1)+":"+std::to_string(y1));
                     o = vTemp->getId();
                     vTemp = grafo->findVerticeByName(destino+":"+std::to_string(x2)+":"+std::to_string(y2));
                     d = vTemp->getId();
-
-
-
                     grafo->criaArestaById(o, d, distancia);
-                    grafo->criaArestaById(d, o, distancia);
+                    //grafo->criaArestaById(d, o, distancia);
+
+                    grafo->dTemp.cidade1 = o;
+                    grafo->dTemp.cidade2 = d;
+                    grafo->dTemp.distancia = distancia;
+
+                    grafo->linhaDaMatriz.emplace_back(grafo->dTemp);
+
 
                 }
             }
-
-
-
-
-
+            std::sort(grafo->linhaDaMatriz.begin(), grafo->linhaDaMatriz.end(), grafo->D );
+            grafo->Md.emplace_back(grafo->linhaDaMatriz);
         }
+
+        grafo->linhaDaMatriz.clear();
+
+        grafo->methodAMC();
 
         grafo->printListaV();
         grafo->printListaE();
-        grafo->criaAdjList();
+        //grafo->criaAdjList();
 
         int t = grafo->getListaVmapSize();
 
         float_t matrizDistancia[t][t];
 
-        for( int i = 0; i < t; ++i){
-            for(int j = 0; j < t; ++j){
-                grafo->BFS(0);
-                matrizDistancia[i][j] = grafo->findVerticeById(j)->getD();
-            }
-        }
+        //for( int i = 0; i < t; ++i){
+            //for(int j = 0; j < t; ++j){
+                //grafo->DijkstraModificadoURI1270(4);
+                //matrizDistancia[0][j] = grafo->findVerticeById(j)->getD();
+                //cout << matrizDistancia[0][j] << "  :  ";
+                //grafo->DFSVisit(j);
+                cout << endl;
+                grafo->printListaV();
+                cout << endl << endl;
+            //}
+        //}
 
         cout << "fim" << endl;
 
-
-
-        grafo->limpaArestas();
-        grafo->limpaVertices();
-        grafo->criaAdjList();
-
     }
-
-
-
 
     return 0;
 }
-*/
-
-int main() {
-
-
-    AdjListGraph *grafo = new AdjListGraph(9, true, false);
-    grafo->criaVertice(0, "0", 0);
-    grafo->criaVertice(1, "1", 0);
-    grafo->criaVertice(2, "2", 0);
-    grafo->criaVertice(3, "3", 0);
-    grafo->criaVertice(4, "4", 0);
-    grafo->criaVertice(5, "5", 0);
-    grafo->criaVertice(6, "6", 0);
-    grafo->criaVertice(7, "7", 0);
-    grafo->criaVertice(8, "8", 0);
-
-    grafo->criaArestaById(0, 1, 4);
-
-    grafo->criaArestaById(0, 7, 8);
-    grafo->criaArestaById(1, 2, 8);
-    grafo->criaArestaById(1, 7, 11);
-    grafo->criaArestaById(2, 3, 7);
-    grafo->criaArestaById(2, 8, 2);
-    grafo->criaArestaById(2, 5, 4);
-    grafo->criaArestaById(3, 4, 9);
-    grafo->criaArestaById(3, 5, 14);
-    grafo->criaArestaById(4, 5, 10);
-    grafo->criaArestaById(5, 6, 2);
-    grafo->criaArestaById(6, 7, 1);
-    grafo->criaArestaById(6, 8, 6);
-    grafo->criaArestaById(7, 8, 7);
-
-
-
-
-    grafo->printListaV();
-    grafo->printListaE();
-    grafo->criaAdjList();
-
-    grafo->Dijkstra(0);
-    cout << "Dijkstra result:" << endl;
-    //grafo->printListaV();
-    //grafo->printPathBFS(0,4);
-}
-
- /*
-   grafo->limpaVertices();
-
-   AdjListGraph *grafo = new AdjListGraph(6,true,false);
-   grafo->criaVertice(0, "u", 0);
-   grafo->criaVertice(1, "v", 0);
-   grafo->criaVertice(2, "w", 0);
-   grafo->criaVertice(3, "z", 0);
-   grafo->criaVertice(4, "y", 0);
-   grafo->criaVertice(5, "x", 0);
-
-   grafo->criaArestaById(0, 1, 1);
-   grafo->criaArestaById(0, 5, 5);
-   grafo->criaArestaById(1, 4, 14);
-   grafo->criaArestaById(2, 4, 24);
-   grafo->criaArestaById(2, 3, 23);
-   grafo->criaArestaById(3, 3, 33);
-   grafo->criaArestaById(4, 5, 45);
-   grafo->criaArestaById(5, 1, 51);
-
-   grafo->printListaV();
-   grafo->printListaE();
-
-   grafo->criaAdjList();
-
-   grafo->DFS();
-   cout << "DFS result:" << endl;
-   grafo->printListaV();
-   grafo->printListaE();
-
-    AdjListGraph *grafo = new AdjListGraph(9, true, false);
-    grafo->criaVertice(0, "a", 0);
-    grafo->criaVertice(1, "b", 0);
-    grafo->criaVertice(2, "c", 0);
-    grafo->criaVertice(3, "d", 0);
-    grafo->criaVertice(4, "e", 0);
-    grafo->criaVertice(5, "f", 0);
-    grafo->criaVertice(6, "g", 0);
-    grafo->criaVertice(7, "h", 0);
-    grafo->criaVertice(8, "i", 0);
-
-    grafo->criaArestaById(0, 1, 4);
-    grafo->criaArestaById(1, 0, 4);
-
-    grafo->criaArestaById(1, 2, 8);
-    grafo->criaArestaById(2, 1, 8);
-
-    grafo->criaArestaById(2, 3, 7);
-    grafo->criaArestaById(3, 2, 7);
-
-    grafo->criaArestaById(3, 4, 9);
-    grafo->criaArestaById(4, 3, 9);
-
-    grafo->criaArestaById(4, 5, 10);
-    grafo->criaArestaById(5, 4, 10);
-
-    grafo->criaArestaById(3, 5, 14);
-    grafo->criaArestaById(5, 3, 14);
-
-    grafo->criaArestaById(5, 2, 4);
-    grafo->criaArestaById(2, 5, 4);
-
-    grafo->criaArestaById(2, 8, 2);
-    grafo->criaArestaById(8, 2, 2);
-
-    grafo->criaArestaById(5, 6, 2);
-    grafo->criaArestaById(6, 5, 2);
-
-    grafo->criaArestaById(8, 6, 6);
-    grafo->criaArestaById(6, 8, 6);
-
-    grafo->criaArestaById(8, 7, 7);
-    grafo->criaArestaById(7, 8, 7);
-
-    grafo->criaArestaById(6, 7, 0);
-    grafo->criaArestaById(7, 6, 0);
-
-    grafo->criaArestaById(1, 7, 11);
-    grafo->criaArestaById(7, 1, 11);
-
-    grafo->criaArestaById(0, 7, 8);
-    grafo->criaArestaById(7, 0, 8);
-
-    grafo->printListaV();
-    grafo->printListaE();
-    grafo->criaAdjList();
-    grafo->MSTPrim(0);
-
-    cout << endl << "MSTPrim result:" << endl;
-    grafo->printListaV();
-    grafo->printListaE();
-
-
-*/
